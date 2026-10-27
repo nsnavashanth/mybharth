@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignBridge — Make Every Sign Understood</title>
+
+    <style>
+        :root {
+            --bg: #f5f3ed;
+            --ink: #171914;
+            --muted: #686a62;
+            --line: #c9c9bf;
+            --lime: #d8ff35;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        textarea {
+            font: inherit;
+        }
+
+        /* Navigation */
+
+        header {
+            min-height: 74px;
+            padding: 0 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: var(--lime);
+            border: 1px solid var(--ink);
+            margin-right: 8px;
+        }
+
+        nav {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+            text-underline-offset: 5px;
+        }
+
+        .nav-link {
+            border: 1px solid var(--ink);
+            padding: 11px 14px;
+            font-weight: bold;
+        }
+
+        /* Hero */
+
+        .hero {
+            padding: 85px 6%;
+            display: grid;
+            grid-template-columns: 1fr 0.92fr;
+            gap: 7%;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: clamp(48px, 6.5vw, 90px);
+            line-height: 0.92;
+            letter-spacing: -0.075em;
+            margin-bottom: 28px;
+        }
+
+        .intro {
+            max-width: 480px;
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .hero-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .text-link {
+            border-bottom: 1px solid var(--ink);
+            padding-bottom: 7px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .text-link:hover {
+            background: var(--lime);
+        }
+
+        .stamp {
+            background: var(--lime);
+            border: 1px solid var(--ink);
+            padding: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            transform: rotate(-2deg);
+        }
+
+        /* Camera demo */
+
+        .demo {
+            padding: 12px;
+            background: #e7e5dd;
+            border: 1px solid var(--ink);
+            box-shadow: 7px 7px 0 var(--ink);
+        }
+
+        .demo-header {
+            padding: 8px 4px 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .camera {
+            position: relative;
+            min-height: 250px;
+            aspect-ratio: 4 / 3;
+            background: #d4d1c7;
+            border: 1px solid var(--ink);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #video {
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            inset: 0;
+            object-fit: cover;
+        }
+
+        .camera-placeholder {
+            padding: 30px;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .camera-symbol {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        .camera-placeholder p {
+            margin-top: 10px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+        .camera-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--lime);
+            border: 1px solid var(--ink);
+            padding: 7px 9px;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 12px 15px;
+            border: 1px solid var(--ink);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .primary {
+            background: var(--ink);
+            color: white;
+        }
+
+        .primary:hover {
+            background: #414238;
+        }
+
+        .secondary {
+            background: transparent;
+            color: var(--ink);
+        }
+
+        .secondary:hover {
+            background: var(--lime);
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Text and voice output */
+
+        .output {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: end;
+            margin-top: 16px;
+            padding: 15px;
+            background: var(--bg);
+            border: 1px solid var(--ink);
+        }
+
+        .output label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        #translation {
+            width: 100%;
+            min-height: 55px;
+            resize: vertical;
+            background: transparent;
+            border: 0;
+            outline: none;
+            color: var(--ink);
+            font-size: 17px;
+            line-height: 1.5;
+        }
+
+        .output-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .output-buttons button {
+            min-width: 85px;
+        }
+
+        .feedback {
+            margin: 12px 2px 0;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        /* Features */
+
+        section.content {
+            padding: 65px 6%;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        h2 {
+            font-size: clamp(32px, 4vw, 52px);
+            letter-spacing: -0.06em;
+        }
+
+        .section-heading p {
+            max-width: 350px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            border-top: 1px solid var(--ink);
+        }
+
+        .feature {
+            padding: 22px 25px 20px 0;
+            margin-right: 25px;
+            border-right: 1px solid var(--line);
+        }
+
+        .feature:last-child {
+            border-right: 0;
+            margin-right: 0;
+        }
+
+        .number {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 35px;
+        }
+
+        .feature h3 {
+            font-size: 19px;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .feature p,
+        .step p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        /* Process */
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            margin-top: 30px;
+        }
+
+        .step {
+            padding-top: 17px;
+            border-top: 3px solid var(--ink);
+        }
+
+        .step h3 {
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        footer {
+            padding: 25px 6%;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 800px) {
+            header {
+                padding: 20px 5%;
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 18px;
+            }
+
+            nav {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 55px 5%;
+                gap: 45px;
+            }
+
+            section.content {
+                padding: 45px 5%;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .features,
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .feature {
+                margin: 0;
+                padding: 22px 0;
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .number {
+                margin-bottom: 18px;
+            }
+
+            footer {
+                padding: 24px 5%;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <a href="#" class="logo"><span></span>signbridge.</a>
+
+        <nav>
+            <a href="#about">About</a>
+            <a href="#how">How it works</a>
+            <a href="#features">Features</a>
+            <a href="#try" class="nav-link">Open demo ↘</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="hero" id="about">
+
+            <div>
+                <p class="eyebrow">Communication should be for everyone.</p>
+
+                <h1>Make every<br>sign understood.</h1>
+
+                <p class="intro">
+                    A simple sign-language communication concept that turns
+                    visual signing into readable text and spoken words, while
+                    recognising that facial expression and context matter too.
+                </p>
+
+                <div class="hero-links">
+                    <a href="#try" class="text-link">Try the browser demo ↓</a>
+                    <span class="stamp">DESIGNED FOR PEOPLE</span>
+                </div>
+            </div>
+
+            <div class="demo" id="try">
+
+                <div class="demo-header">
+                    <span id="cameraStatus">Camera off</span>
+                    <span>SIGNBRIDGE / 001</span>
+                </div>
+
+                <div class="camera">
+
+                    <span class="camera-tag">Live preview</span>
+
+                    <video id="video" autoplay playsinline muted></video>
+
+                    <div class="camera-placeholder" id="cameraPlaceholder">
+                        <div class="camera-symbol">⌁</div>
+
+                        <strong>Your camera preview goes here.</strong>
+
+                        <p>
+                            Start the camera to see yourself in the workspace.
+                            This prototype does not automatically identify signs.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="controls">
+                    <button class="primary" id="startCamera">Start camera</button>
+                    <button class="secondary" id="stopCamera" disabled>Stop</button>
+                </div>
+
+                <div class="output">
+
+                    <div>
+                        <label for="translation">Text / speech output</label>
+
+                        <textarea id="translation" rows="2">Hello, how are you?</textarea>
+                    </div>
+
+                    <div class="output-buttons">
+                        <button class="primary" id="speakBtn">Speak ↗</button>
+                        <button class="secondary" id="copyBtn">Copy text</button>
+                    </div>
+
+                </div>
+
+                <p class="feedback" id="feedback" aria-live="polite">
+                    Prototype mode · Edit the text and press Speak to hear it.
+                </p>
+
+            </div>
+
+        </section>
+
+        <section class="content" id="features">
+
+            <div class="section-heading">
+                <h2>More than a hand gesture.</h2>
+
+                <p>
+                    Communication includes movement, expression and context.
+                    A useful translation system should consider them together.
+                </p>
+            </div>
+
+            <div class="features">
+
+                <article class="feature">
+                    <div class="number">01 / INPUT</div>
+                    <h3>Visual signing</h3>
+                    <p>
+                        Use a camera as the input for a future sign-recognition
+                        model, with a clear preview for the person signing.
+                    </p>
+                </article>
+
+                <article class="feature">
+                    <div class="number">02 / CONTEXT</div>
+                    <h3>Expression matters</h3>
+                    <p>
+                        Facial expressions and body movement can change meaning
+                        and should be included in model design and evaluation.
+                    </p>
+                </article>
+
+                <article class="feature">
+                    <div class="number">03 / OUTPUT</div>
+                    <h3>Text and voice</h3>
+                    <p>
+                        Present recognised phrases as readable text and provide
+                        optional speech output for conversations.
+                    </p>
+                </article>
+
+            </div>
+
+        </section>
+
+        <section class="content" id="how">
+
+            <div class="section-heading">
+                <h2>How it works.</h2>
+
+                <p>
+                    A straightforward flow from visual input to a response
+                    someone can read or hear.
+                </p>
+            </div>
+
+            <div class="steps">
+
+                <article class="step">
+                    <h3>01 — Capture</h3>
+                    <p>
+                        The camera captures signing, hand movement and relevant
+                        facial cues with the user's permission.
+                    </p>
+                </article>
+
+                <article class="step">
+                    <h3>02 — Interpret</h3>
+                    <p>
+                        A sign-language model analyses the video and predicts
+                        a phrase. The model must be integrated separately.
+                    </p>
+                </article>
+
+                <article class="step">
+                    <h3>03 — Communicate</h3>
+                    <p>
+                        The predicted phrase appears as text and can be read
+                        aloud using the browser's speech feature.
+                    </p>
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <span>signbridge. — A communication-first prototype</span>
+        <span>Camera video is not uploaded by this page.</span>
+    </footer>
+
+    <script>
+        const video = document.getElementById("video");
+        const placeholder = document.getElementById("cameraPlaceholder");
+        const startBtn = document.getElementById("startCamera");
+        const stopBtn = document.getElementById("stopCamera");
+        const statusText = document.getElementById("cameraStatus");
+        const feedback = document.getElementById("feedback");
+        const translation = document.getElementById("translation");
+
+        let cameraStream = null;
+
+        startBtn.addEventListener("click", async () => {
+            if (!navigator.mediaDevices ||
+                !navigator.mediaDevices.getUserMedia) {
+                feedback.textContent =
+                    "Camera unavailable. Open the website in a modern browser using HTTPS or localhost.";
+                return;
+            }
+
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "user" },
+                    audio: false
+                });
+
+                video.srcObject = cameraStream;
+                video.style.display = "block";
+                placeholder.style.display = "none";
+
+                statusText.textContent = "Camera on";
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+
+                feedback.textContent =
+                    "Camera preview active. Automatic sign recognition is not enabled in this prototype.";
+
+            } catch (error) {
+                feedback.textContent =
+                    "Camera access failed. Check browser permissions and ensure your camera is available.";
+            }
+        });
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+
+            cameraStream = null;
+            video.srcObject = null;
+            video.style.display = "none";
+            placeholder.style.display = "block";
+
+            statusText.textContent = "Camera off";
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+
+        stopBtn.addEventListener("click", stopCamera);
+
+        document.getElementById("speakBtn").addEventListener("click", () => {
+            const text = translation.value.trim();
+
+            if (!text) {
+                feedback.textContent = "Enter some text before speaking.";
+                return;
+            }
+
+            if (!("speechSynthesis" in window)) {
+                feedback.textContent = "Speech is not supported by this browser.";
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            const speech = new SpeechSynthesisUtterance(text);
+            speech.lang = "en-IN";
+            speech.rate = 0.95;
+
+            speech.onstart = () => {
+                feedback.textContent = "Speaking...";
+            };
+
+            speech.onend = () => {
+                feedback.textContent = "Speech finished.";
+            };
+
+            speech.onerror = () => {
+                feedback.textContent = "Speech playback failed.";
+            };
+
+            window.speechSynthesis.speak(speech);
+        });
+
+        document.getElementById("copyBtn").addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(translation.value);
+                feedback.textContent = "Text copied successfully.";
+            } catch (error) {
+                translation.select();
+                const success = document.execCommand("copy");
+
+                feedback.textContent = success
+                    ? "Text copied successfully."
+                    : "Select the text and copy it manually.";
+            }
+        });
+
+        window.addEventListener("beforeunload", stopCamera);
+    </script>
+
+</body>
+
+</html>
